@@ -1,24 +1,27 @@
-# ---------- Build Stage ----------
-FROM node:18-slim AS builder
+# Build stage
+FROM node:alpine3.18 AS build
+
+# Set Node.js memory limit for low-memory environments
+ENV NODE_OPTIONS="--max-old-space-size=2560"
 
 WORKDIR /app
 
+# Copy package files first for better Docker layer caching
 COPY package*.json ./
-RUN npm install
 
+# Install dependencies with memory optimization
+RUN npm ci --silent --no-optional
+
+# Copy source code
 COPY . .
-RUN node --max-old-space-size=8192 $(which npm) run build
 
-# ---------- Production Stage ----------
-FROM node:18-alpine AS production
+# Build the React app
+RUN npm run build
 
-WORKDIR /app
-
-RUN npm install -g serve
-
-# Copy build files from previous stage
-COPY --from=builder /app/build ./build
-
-EXPOSE 3000
-
-CMD ["serve", "-s", "build", "-l", "3000"]
+# Production stage - serve with nginx  
+FROM nginx:1.23-alpine
+WORKDIR /usr/share/nginx/html
+RUN rm -rf *
+COPY --from=build /app/build .
+EXPOSE 80
+ENTRYPOINT ["nginx", "-g", "daemon off;"]
