@@ -42,7 +42,7 @@ RUN npm install
 COPY . .
 
 # Build the React app
-RUN npm run build
+RUN node --max-old-space-size=4096 $(which npm) run build
 
 # Install serve to serve the built app
 RUN npm install -g serve
