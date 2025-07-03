@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  react-app:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - app-data:/app/data
+    container_name: react-firebase-app
+
+volumes:
+  app-data:

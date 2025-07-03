@@ -1,0 +1,12 @@
+services:
+  frontend_ci: # Different service name
+    build:
+      context: . # Jenkins will use this to build the image
+      dockerfile: Dockerfile
+    ports:
+      - "8082:80" # Different host port to avoid conflict
+    restart: always
+    image: salon-frontend-ci
+    
+
+  #test
